@@ -182,7 +182,7 @@ Suggested roles:
 - `intern_content` — can draft copy/social/SEO/content plans; no posting without approval.
 - `intern_ops` — can update internal SOPs/checklists and triage tasks; no money movement.
 - `intern_engineering` — can open PRs against repos; no direct production deploy without review.
-- `manager` — can approve content, promote tasks, and view client dashboards.
+- `manager` — can approve internal content, promote tasks, and view client dashboards; external publishing still escalates to John/owner approval.
 - `finance_operator` — can view Cain Union module; no money movement unless explicitly approved.
 
 Default intern permissions:

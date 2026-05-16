@@ -95,7 +95,7 @@ test('Jukes client links label live systems separately from placeholders', () =>
   );
 });
 
-test('role access levels define intern and operator boundaries', () => {
+test('role access levels define intern, manager, and owner approval boundaries', () => {
   assert.deepEqual(
     ROLE_ACCESS_LEVELS.map((role) => role.key),
     [
@@ -115,6 +115,28 @@ test('role access levels define intern and operator boundaries', () => {
     assert.equal(internRole.canAccessSecrets, false);
     assert.equal(internRole.canMoveMoney, false);
   }
+
+  const manager = ROLE_ACCESS_LEVELS.find((role) => role.key === 'manager');
+  assert.equal(manager.canPublishExternally, false);
+  assert.equal(manager.canAccessSecrets, false);
+  assert.equal(manager.canMoveMoney, false);
+  assert.equal(manager.externalPublishingApproval, 'john_owner_required');
+  assert.match(manager.notes, /approve internal/i);
+  assert.match(manager.notes, /John/i);
+  assert.match(manager.notes, /external publishing/i);
+
+  const owner = ROLE_ACCESS_LEVELS.find((role) => role.key === 'owner');
+  assert.equal(owner.canPublishExternally, true);
+  assert.equal(owner.canAccessSecrets, true);
+  assert.equal(owner.canMoveMoney, true);
+
+  const unconditionalCapabilityRoles = ROLE_ACCESS_LEVELS.filter(
+    (role) => role.canPublishExternally || role.canAccessSecrets || role.canMoveMoney,
+  );
+  assert.deepEqual(
+    unconditionalCapabilityRoles.map((role) => role.key),
+    ['owner'],
+  );
 
   assert.equal(
     ROLE_ACCESS_LEVELS.find((role) => role.key === 'finance_operator').canMoveMoney,
