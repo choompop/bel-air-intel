@@ -48,6 +48,21 @@ export default function Home() {
               Static-first registry for Bel Air Intel as the parent onboarding, permissions,
               module, and agent control plane. Juke&apos;s Diner is registered as the first client tenant.
             </p>
+            <a
+              href="/clients/jukes-diner"
+              style={{
+                display: 'inline-flex',
+                marginTop: 18,
+                border: '1px solid rgba(139,211,255,0.42)',
+                borderRadius: 999,
+                padding: '10px 14px',
+                color: '#8bd3ff',
+                textDecoration: 'none',
+                fontSize: 14,
+              }}
+            >
+              Open Juke&apos;s Diner client page →
+            </a>
           </div>
           <div style={cardStyle}>
             <p style={eyebrowStyle}>First client</p>

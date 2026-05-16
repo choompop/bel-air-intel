@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   CLIENT_REGISTRY,
+  JUKES_DINER_SYSTEM_LINKS,
   MODULE_REGISTRY,
   ROLE_ACCESS_LEVELS,
   getClientBySlug,
@@ -62,6 +63,35 @@ test('module status feed keeps integrations static and approval-safe', () => {
     statuses
       .find((status) => status.moduleKey === 'finance-cain-union')
       .approvalBoundaries.includes('No transfers, payouts, refunds, or account-link actions without John approval.'),
+  );
+});
+
+test('Jukes client links label live systems separately from placeholders', () => {
+  assert.deepEqual(
+    JUKES_DINER_SYSTEM_LINKS.map((link) => link.key),
+    [
+      'jukes-dashboard',
+      'booking-pipeline',
+      'drive-assets',
+      'calendar',
+      'slack-flo',
+      'public-website',
+      'cain-union-finance',
+      'mainframe-studio-growth',
+      'kanban-board',
+    ],
+  );
+
+  const liveLinks = JUKES_DINER_SYSTEM_LINKS.filter((link) => link.linkType === 'live');
+  const placeholderLinks = JUKES_DINER_SYSTEM_LINKS.filter((link) => link.linkType === 'placeholder');
+
+  assert.ok(liveLinks.length >= 2);
+  assert.ok(placeholderLinks.length >= 1);
+  assert.ok(JUKES_DINER_SYSTEM_LINKS.every((link) => link.label && link.href && link.linkType));
+  assert.ok(JUKES_DINER_SYSTEM_LINKS.every((link) => ['live', 'placeholder'].includes(link.linkType)));
+  assert.equal(
+    JUKES_DINER_SYSTEM_LINKS.find((link) => link.key === 'cain-union-finance').approvalRequired,
+    true,
   );
 });
 
