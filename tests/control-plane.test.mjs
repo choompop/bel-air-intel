@@ -1,0 +1,93 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import {
+  CLIENT_REGISTRY,
+  MODULE_REGISTRY,
+  ROLE_ACCESS_LEVELS,
+  getClientBySlug,
+  getClientModuleStatuses,
+} from '../lib/control-plane.mjs';
+
+test('Jukes Diner is registered as the first beta client tenant', () => {
+  assert.equal(CLIENT_REGISTRY.length, 1);
+
+  const jukes = getClientBySlug('jukes-diner');
+
+  assert.equal(jukes.name, "Juke's Diner");
+  assert.equal(jukes.status, 'beta_internal_proof_client');
+  assert.equal(jukes.parentControlPlane, 'bel-air-intel');
+  assert.deepEqual(jukes.enabledModuleKeys, [
+    'operations',
+    'bookings',
+    'marketing',
+    'drive-asset-library',
+    'finance-cain-union',
+    'agent-brain',
+    'public-site-mainframe-studio',
+  ]);
+});
+
+test('module registry exposes all required Bel Air Intel control-plane modules', () => {
+  assert.deepEqual(
+    MODULE_REGISTRY.map((module) => module.key),
+    [
+      'operations',
+      'bookings',
+      'marketing',
+      'drive-asset-library',
+      'finance-cain-union',
+      'agent-brain',
+      'public-site-mainframe-studio',
+    ],
+  );
+
+  for (const module of MODULE_REGISTRY) {
+    assert.ok(module.name);
+    assert.ok(module.ownerBrand);
+    assert.ok(module.status);
+    assert.ok(module.sourceSystem);
+    assert.ok(Array.isArray(module.approvalBoundaries));
+  }
+});
+
+test('module status feed keeps integrations static and approval-safe', () => {
+  const statuses = getClientModuleStatuses('jukes-diner');
+
+  assert.equal(statuses.length, 7);
+  assert.ok(statuses.every((status) => status.clientSlug === 'jukes-diner'));
+  assert.ok(statuses.every((status) => status.health !== 'live_money_movement'));
+  assert.ok(statuses.some((status) => status.moduleKey === 'finance-cain-union'));
+  assert.ok(
+    statuses
+      .find((status) => status.moduleKey === 'finance-cain-union')
+      .approvalBoundaries.includes('No transfers, payouts, refunds, or account-link actions without John approval.'),
+  );
+});
+
+test('role access levels define intern and operator boundaries', () => {
+  assert.deepEqual(
+    ROLE_ACCESS_LEVELS.map((role) => role.key),
+    [
+      'intern_research',
+      'intern_content',
+      'intern_ops',
+      'intern_engineering',
+      'operator',
+      'manager',
+      'finance_operator',
+      'owner',
+    ],
+  );
+
+  for (const internRole of ROLE_ACCESS_LEVELS.filter((role) => role.key.startsWith('intern_'))) {
+    assert.equal(internRole.canPublishExternally, false);
+    assert.equal(internRole.canAccessSecrets, false);
+    assert.equal(internRole.canMoveMoney, false);
+  }
+
+  assert.equal(
+    ROLE_ACCESS_LEVELS.find((role) => role.key === 'finance_operator').canMoveMoney,
+    false,
+  );
+});
